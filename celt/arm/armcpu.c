@@ -45,10 +45,25 @@
 
 #if defined(_MSC_VER)
 /*For GetExceptionCode() and EXCEPTION_ILLEGAL_INSTRUCTION.*/
-# define WIN32_LEAN_AND_MEAN
+# ifndef WIN32_LEAN_AND_MEAN
+#   define WIN32_LEAN_AND_MEAN
+# endif
 # define WIN32_EXTRA_LEAN
 # include <windows.h>
 
+#ifdef WINRT
+static OPUS_INLINE opus_uint32 opus_cpu_capabilities(void){
+  opus_uint32 flags;
+  flags = OPUS_ARM_MAY_HAVE_MEDIA | OPUS_CPU_ARM_EDSP;
+  
+  if (IsProcessorFeaturePresent(PF_ARM_NEON_INSTRUCTIONS_AVAILABLE))
+  {
+    flags |= OPUS_CPU_ARM_NEON;
+  }
+
+  return flags;
+}
+#else
 static OPUS_INLINE opus_uint32 opus_cpu_capabilities(void){
   opus_uint32 flags;
   flags=0;
@@ -87,6 +102,7 @@ static OPUS_INLINE opus_uint32 opus_cpu_capabilities(void){
 # endif
   return flags;
 }
+#endif
 
 #elif defined(__linux__)
 /* Linux based */
