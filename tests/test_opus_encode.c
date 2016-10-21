@@ -482,8 +482,8 @@ int run_test1(int no_fuzz)
 
 int main(int _argc, char **_argv)
 {
-   const char * oversion = NULL;
-   const char * env_seed = NULL;
+   const char * oversion;
+   const char * env_seed;
    int env_used;
 
    if(_argc>2)
@@ -493,20 +493,14 @@ int main(int _argc, char **_argv)
    }
 
    env_used=0;
-#ifndef WINRT
    env_seed=getenv("SEED");
-#endif // !WINRT
    if(_argc>1)iseed=atoi(_argv[1]);
    else if(env_seed)
    {
       iseed=atoi(env_seed);
       env_used=1;
    }
-#ifdef WINRT
-   iseed = (opus_uint32)time(NULL) ^ ((GetCurrentProcessId() & 65535) << 16);
-#else
-   iseed = (opus_uint32)time(NULL) ^ ((getpid() & 65535) << 16);
-#endif
+   else iseed=(opus_uint32)time(NULL)^((getpid()&65535)<<16);
    Rw=Rz=iseed;
 
    oversion=opus_get_version_string();
@@ -517,11 +511,7 @@ int main(int _argc, char **_argv)
    /*Setting TEST_OPUS_NOFUZZ tells the tool not to send garbage data
      into the decoders. This is helpful because garbage data
      may cause the decoders to clip, which angers CLANG IOC.*/
-#ifdef WINRT
-  run_test1(1);
-#else
-  run_test1(getenv("TEST_OPUS_NOFUZZ") != NULL);
-#endif
+   run_test1(getenv("TEST_OPUS_NOFUZZ")!=NULL);
 
    fprintf(stderr,"Tests completed successfully.\n");
 
