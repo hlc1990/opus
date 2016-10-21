@@ -428,8 +428,8 @@ void test_soft_clip(void)
 
 int main(int _argc, char **_argv)
 {
-   const char * oversion = NULL;
-   const char * env_seed = NULL;
+   const char * oversion;
+   const char * env_seed;
    int env_used;
 
    if(_argc>2)
