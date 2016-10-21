@@ -109,5 +109,4 @@ static OPUS_INLINE opus_int32 silk_SMLAWW_armv4(opus_int32 a, opus_int32 b,
 #undef silk_SMLAWW
 #define silk_SMLAWW(a, b, c) (silk_SMLAWW_armv4(a, b, c))
 
-
 #endif /* SILK_MACROS_ARMv4_H */

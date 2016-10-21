@@ -439,23 +439,14 @@ int main(int _argc, char **_argv)
    }
 
    env_used=0;
-#ifndef WINRT
    env_seed=getenv("SEED");
-#endif
    if(_argc>1)iseed=atoi(_argv[1]);
    else if(env_seed)
    {
       iseed=atoi(env_seed);
       env_used=1;
    }
-   else
-   {
-#ifdef WINRT
-     iseed = (opus_uint32)time(NULL) ^ ((GetCurrentProcessId() & 65535) << 16);
-#else
-    iseed = (opus_uint32)time(NULL) ^ ((getpid() & 65535) << 16);
-#endif
-   }
+   else iseed=(opus_uint32)time(NULL)^((getpid()&65535)<<16);
    Rw=Rz=iseed;
 
    oversion=opus_get_version_string();
@@ -466,11 +457,7 @@ int main(int _argc, char **_argv)
    /*Setting TEST_OPUS_NOFUZZ tells the tool not to send garbage data
      into the decoders. This is helpful because garbage data
      may cause the decoders to clip, which angers CLANG IOC.*/
-#ifdef WINRT
-  test_decoder_code0(1);
-#else
    test_decoder_code0(getenv("TEST_OPUS_NOFUZZ")!=NULL);
-#endif
 #ifndef DISABLE_FLOAT_API
    test_soft_clip();
 #endif

@@ -90,7 +90,6 @@
     } \
     while(0)
 
-
 #undef C_MULC
 #define C_MULC(m,a,b) \
     do{ \

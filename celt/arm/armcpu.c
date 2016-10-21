@@ -48,7 +48,7 @@
 /*For GetExceptionCode() and EXCEPTION_ILLEGAL_INSTRUCTION.*/
 # ifndef WIN32_LEAN_AND_MEAN
 #   define WIN32_LEAN_AND_MEAN
-# endif
+# endif /* WIN32_LEAN_AND_MEAN */
 # define WIN32_EXTRA_LEAN
 # include <windows.h>
 
@@ -64,7 +64,7 @@ static OPUS_INLINE opus_uint32 opus_cpu_capabilities(void){
 
   return flags;
 }
-#else
+#else /* WINRT */
 static OPUS_INLINE opus_uint32 opus_cpu_capabilities(void){
   opus_uint32 flags;
   flags=0;
@@ -105,7 +105,7 @@ static OPUS_INLINE opus_uint32 opus_cpu_capabilities(void){
 # endif
   return flags;
 }
-#endif
+#endif /* WINRT */
 
 #elif defined(__linux__)
 /* Linux based */

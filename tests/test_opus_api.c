@@ -85,7 +85,7 @@ void *malloc_hook(__attribute__((unused)) size_t size,
 //make stderr same as stdout
 #undef stderr
 #define stderr stdout
-#endif
+#endif /* WINRT */
 
 static const opus_int32 opus_rates[5] = {48000,24000,16000,12000,8000};
 
