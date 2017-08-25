@@ -37,6 +37,12 @@ POSSIBILITY OF SUCH DAMAGE.
 #define silk_SMULWW_armv4(a, b)     ((opus_int32)((_arm_smull((a),(b))) >> 16))
 #define silk_SMLAWW_armv4(a, b, c)  (silk_SMULWW_armv4((b), (c)) + (a))
 #else
+
+/* This macro only avoids the undefined behaviour from a left shift of
+   a negative value. It should only be used in macros that can't include
+   SigProc_FIX.h. In other cases, use silk_LSHIFT32(). */
+#define SAFE_SHL(a,b) ((opus_int32)((opus_uint32)(a) << (b)))
+
 /* (a32 * (opus_int32)((opus_int16)(b32))) >> 16 output have to be 32bit int */
 static OPUS_INLINE opus_int32 silk_SMULWB_armv4(opus_int32 a, opus_int16 b)
 {
@@ -46,7 +52,7 @@ static OPUS_INLINE opus_int32 silk_SMULWB_armv4(opus_int32 a, opus_int16 b)
       "#silk_SMULWB\n\t"
       "smull %0, %1, %2, %3\n\t"
       : "=&r"(rd_lo), "=&r"(rd_hi)
-      : "%r"(a), "r"(b<<16)
+      : "%r"(a), "r"(SAFE_SHL(b,16))
   );
   return rd_hi;
 }
@@ -76,7 +82,7 @@ static OPUS_INLINE opus_int32 silk_SMULWW_armv4(opus_int32 a, opus_int32 b)
     : "=&r"(rd_lo), "=&r"(rd_hi)
     : "%r"(a), "r"(b)
   );
-  return (rd_hi<<16)+(rd_lo>>16);
+  return SAFE_SHL(rd_hi,16)+(rd_lo>>16);
 }
 
 static OPUS_INLINE opus_int32 silk_SMLAWW_armv4(opus_int32 a, opus_int32 b,
@@ -90,7 +96,7 @@ static OPUS_INLINE opus_int32 silk_SMLAWW_armv4(opus_int32 a, opus_int32 b,
     : "=&r"(rd_lo), "=&r"(rd_hi)
     : "%r"(b), "r"(c)
   );
-  return a+(rd_hi<<16)+(rd_lo>>16);
+  return a+SAFE_SHL(rd_hi,16)+(rd_lo>>16);
 }
 #endif //USE_MSVS_ARM_INTRINCICS
 
@@ -108,5 +114,7 @@ static OPUS_INLINE opus_int32 silk_SMLAWW_armv4(opus_int32 a, opus_int32 b,
 #define silk_SMULWW(a, b) (silk_SMULWW_armv4(a, b))
 #undef silk_SMLAWW
 #define silk_SMLAWW(a, b, c) (silk_SMLAWW_armv4(a, b, c))
+
+#undef SAFE_SHL
 
 #endif /* SILK_MACROS_ARMv4_H */

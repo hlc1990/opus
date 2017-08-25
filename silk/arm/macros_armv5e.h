@@ -29,7 +29,6 @@ POSSIBILITY OF SUCH DAMAGE.
 #ifndef SILK_MACROS_ARMv5E_H
 #define SILK_MACROS_ARMv5E_H
 
-
 #ifdef USE_MSVS_ARM_INTRINCICS
 /* (a32 * (opus_int32)((opus_int16)(b32))) >> 16 output have to be 32bit int */
 #define silk_SMULWB_armv5e(a, b)      _arm_smulwb((a), (b))
@@ -53,6 +52,12 @@ POSSIBILITY OF SUCH DAMAGE.
 #define silk_CLZ16_armv5(in16)        ((opus_int32)_arm_clz(((opus_int16)(in16))<<16|0x8000))
 #define silk_CLZ32_armv5(in32)        ((opus_int32)_arm_clz((unsigned int)(in32)))
 #else
+
+/* This macro only avoids the undefined behaviour from a left shift of
+   a negative value. It should only be used in macros that can't include
+   SigProc_FIX.h. In other cases, use silk_LSHIFT32(). */
+#define SAFE_SHL(a,b) ((opus_int32)((opus_uint32)(a) << (b)))
+
 /* (a32 * (opus_int32)((opus_int16)(b32))) >> 16 output have to be 32bit int */
 static OPUS_INLINE opus_int32 silk_SMULWB_armv5e(opus_int32 a, opus_int16 b)
 {
@@ -193,7 +198,7 @@ static OPUS_INLINE opus_int32 silk_CLZ16_armv5(opus_int16 in16)
       "#silk_CLZ16\n\t"
       "clz %0, %1;\n"
       : "=r"(res)
-      : "r"(in16<<16|0x8000)
+      : "r"(SAFE_SHL(in16,16)|0x8000)
   );
   return res;
 }
@@ -236,5 +241,7 @@ static OPUS_INLINE opus_int32 silk_CLZ32_armv5(opus_int32 in32)
 #define silk_CLZ16(in16) (silk_CLZ16_armv5(in16))
 #undef silk_CLZ32
 #define silk_CLZ32(in32) (silk_CLZ32_armv5(in32))
+
+#undef SAFE_SHL
 
 #endif /* SILK_MACROS_ARMv5E_H */
